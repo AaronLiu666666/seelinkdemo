@@ -74,11 +74,17 @@ public class SeeLinkApiService {
         return result.getAccessToken();
     }
 
-    public TYYYRegionDTO getReginWithGroupList(TYYYRegionRequestDTO tyyyRegionRequestDTO){
-        HttpResponse httpResponse = HttpRequest.post(SeeLinkConstant.SEE_LINK_HOST + SeeLinkConstant.TOKEN_URI)
+    public TYYYRegionDTO getReginWithGroupList(TYYYRegionRequestDTO tyyyRegionRequestDTO) {
+        String timestamp = StrUtil.str(System.currentTimeMillis(), StandardCharsets.UTF_8);
+        tyyyRegionRequestDTO.setTimestamp(timestamp);
+        tyyyRegionRequestDTO.setAppId(SeeLinkConstant.APP_ID);
+        tyyyRegionRequestDTO.setAppSecret(SeeLinkConstant.APP_SECRET);
+        tyyyRegionRequestDTO.setClientType(SeeLinkConstant.CLIENT_TYPE);
+        tyyyRegionRequestDTO.setVersion(SeeLinkConstant.VERSION);
+        HttpResponse httpResponse = HttpRequest.post(SeeLinkConstant.SEE_LINK_HOST + SeeLinkConstant.REGION_URI)
                 .setReadTimeout(6000)
                 .header("apiVersion", "2.0")
-                .body(JSON.toJSONString(tyyyRegionRequestDTO))
+                .form(tyyyRegionRequestDTO.generateFormMap())
                 .execute();
         int httpStatus = httpResponse.getStatus();
         String res = httpResponse.body();

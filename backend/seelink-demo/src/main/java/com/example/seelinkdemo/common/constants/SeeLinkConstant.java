@@ -11,6 +11,8 @@ public class SeeLinkConstant {
 
     public static final String TOKEN_URI = "/open/oauth/getAccessToken";
 
+    public static final String REGION_URI = "/open/token/device/getReginWithGroupList";
+
     public static final String APP_ID = "719972857588";
 
     public static final String APP_SECRET = "01da98e63c6342aaad35c6c593bbd6a8";

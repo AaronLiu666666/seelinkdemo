@@ -1,5 +1,6 @@
 package com.example.seelinkdemo.seelinkapi.controller;
 
+import com.example.seelinkdemo.common.constants.SeeLinkConstant;
 import com.example.seelinkdemo.common.model.ResponseVO;
 import com.example.seelinkdemo.seelinkapi.model.TYYYRegionDTO;
 import com.example.seelinkdemo.seelinkapi.model.TYYYRegionRequestDTO;
@@ -32,9 +33,13 @@ public class SeeLinkController {
         return ResponseVO.success(tyyyAccessTokenVO);
     }
 
-    @GetMapping("/getReginTree")
-    public ResponseVO<TYYYRegionDTO> getReginWithGroupList(){
-        TYYYRegionDTO tyyyRegionDTO = seeLinkApiService.getReginWithGroupList(new TYYYRegionRequestDTO());
+    @GetMapping("/getRegin")
+    public ResponseVO<TYYYRegionDTO> getRegion(String regionId){
+        TYYYRegionRequestDTO tyyyRegionRequestDTO = new TYYYRegionRequestDTO();
+        tyyyRegionRequestDTO.setRegionId(regionId);
+        tyyyRegionRequestDTO.setAccessToken(seeLinkApiService.getAccessToken());
+        tyyyRegionRequestDTO.setEnterpriseUser(SeeLinkConstant.ENTERPRISE_USER);
+        TYYYRegionDTO tyyyRegionDTO = seeLinkApiService.getReginWithGroupList(tyyyRegionRequestDTO);
         return ResponseVO.success(tyyyRegionDTO);
     }
 

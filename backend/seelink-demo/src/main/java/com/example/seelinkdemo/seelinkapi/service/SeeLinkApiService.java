@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -74,7 +75,7 @@ public class SeeLinkApiService {
         return result.getAccessToken();
     }
 
-    public TYYYRegionDTO getReginWithGroupList(TYYYRegionRequestDTO tyyyRegionRequestDTO) {
+    public List<TYYYRegionDTO> getReginWithGroupList(TYYYRegionRequestDTO tyyyRegionRequestDTO) {
         String timestamp = StrUtil.str(System.currentTimeMillis(), StandardCharsets.UTF_8);
         tyyyRegionRequestDTO.setTimestamp(timestamp);
         tyyyRegionRequestDTO.setAppId(SeeLinkConstant.APP_ID);
@@ -95,7 +96,7 @@ public class SeeLinkApiService {
                 log.error("天翼云眼账号:获取token失败，{}", response);
                 throw new CustomException(ReturnCodeEnum.COMPANY_SERVER_ERROR.code, ReturnCodeEnum.COMPANY_SERVER_ERROR.value);
             }
-            TYYYRegionDTO result = JSONUtil.toBean(response.getData(), TYYYRegionDTO.class);
+            List<TYYYRegionDTO> result = JSON.parseArray(response.getData(), TYYYRegionDTO.class);
             return result;
         }
         return null;
@@ -105,10 +106,39 @@ public class SeeLinkApiService {
         TYYYRegionRequestDTO tyyyRegionRequestDTO = new TYYYRegionRequestDTO();
         tyyyRegionRequestDTO.setAccessToken(getAccessToken());
         tyyyRegionRequestDTO.setEnterpriseUser(SeeLinkConstant.ENTERPRISE_USER);
-        TYYYRegionDTO regionDTO = getReginWithGroupList(tyyyRegionRequestDTO);
-        Queue<TYYYRegionRequestDTO> queue = new LinkedList<>();
+        //TYYYRegionDTO regionDTO = getReginWithGroupList(tyyyRegionRequestDTO);
+        //Queue<TYYYRegionRequestDTO> queue = new LinkedList<>();
 
 
+    }
+
+    public TyyyGetDeviceListResponseDTO getDeviceList(TyyyGetDeviceListRequestDTO requestDTO){
+        String timestamp = StrUtil.str(System.currentTimeMillis(), StandardCharsets.UTF_8);
+        requestDTO.setTimestamp(timestamp);
+        requestDTO.setAccessToken(getAccessToken());
+        requestDTO.setEnterpriseUser(SeeLinkConstant.ENTERPRISE_USER);
+        requestDTO.setAppId(SeeLinkConstant.APP_ID);
+        requestDTO.setAppSecret(SeeLinkConstant.APP_SECRET);
+        requestDTO.setClientType(SeeLinkConstant.CLIENT_TYPE);
+        requestDTO.setVersion(SeeLinkConstant.VERSION);
+        HttpResponse httpResponse = HttpRequest.post(SeeLinkConstant.SEE_LINK_HOST + SeeLinkConstant.DEVICE_LIST_URI)
+                .setReadTimeout(6000)
+                .header("apiVersion", "2.0")
+                .form(requestDTO.generateFormMap())
+                .execute();
+        int httpStatus = httpResponse.getStatus();
+        String res = httpResponse.body();
+        if (httpStatus == HttpStatus.HTTP_OK) {
+            TYYYCommonResponse response = JSONUtil.toBean(res, TYYYCommonResponse.class);
+            Integer code = response.getCode();
+            if (code != 0) {
+                log.error("天翼云眼账号:获取token失败，{}", response);
+                throw new CustomException(ReturnCodeEnum.COMPANY_SERVER_ERROR.code, ReturnCodeEnum.COMPANY_SERVER_ERROR.value);
+            }
+            TyyyGetDeviceListResponseDTO result = JSONUtil.toBean(response.getData(), TyyyGetDeviceListResponseDTO.class);
+            return result;
+        }
+        return null;
     }
 
 }

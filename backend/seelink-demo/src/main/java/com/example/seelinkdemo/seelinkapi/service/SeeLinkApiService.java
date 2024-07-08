@@ -1,21 +1,21 @@
 package com.example.seelinkdemo.seelinkapi.service;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpStatus;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
 import com.example.seelinkdemo.common.constants.SeeLinkConstant;
 import com.example.seelinkdemo.common.enums.ReturnCodeEnum;
 import com.example.seelinkdemo.common.exceptions.CustomException;
-import com.example.seelinkdemo.seelinkapi.model.*;
+import com.example.seelinkdemo.seelinkapi.model.TYYYCommonResponse;
+import com.example.seelinkdemo.seelinkapi.model.TYYYRegionDTO;
+import com.example.seelinkdemo.seelinkapi.model.TYYYRegionRequestDTO;
+import com.example.seelinkdemo.seelinkapi.model.TyyyGetAccessTokenRequestDTO;
+import com.example.seelinkdemo.seelinkapi.model.TyyyGetAccessTokenResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Map;

@@ -5,22 +5,16 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.example.seelinkdemo.common.constants.SeeLinkConstant;
 import com.example.seelinkdemo.common.enums.ReturnCodeEnum;
 import com.example.seelinkdemo.common.exceptions.CustomException;
-import com.example.seelinkdemo.seelinkapi.model.TYYYCommonResponse;
-import com.example.seelinkdemo.seelinkapi.model.TYYYRegionDTO;
-import com.example.seelinkdemo.seelinkapi.model.TYYYRegionRequestDTO;
-import com.example.seelinkdemo.seelinkapi.model.TyyyGetAccessTokenRequestDTO;
-import com.example.seelinkdemo.seelinkapi.model.TyyyGetAccessTokenResponseDTO;
+import com.example.seelinkdemo.seelinkapi.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @author liurong
@@ -102,17 +96,58 @@ public class SeeLinkApiService {
         return null;
     }
 
-    public void getRegionTree(){
+    public TYYYRegionDTO getRegionTree() {
         TYYYRegionRequestDTO tyyyRegionRequestDTO = new TYYYRegionRequestDTO();
         tyyyRegionRequestDTO.setAccessToken(getAccessToken());
         tyyyRegionRequestDTO.setEnterpriseUser(SeeLinkConstant.ENTERPRISE_USER);
-        //TYYYRegionDTO regionDTO = getReginWithGroupList(tyyyRegionRequestDTO);
-        //Queue<TYYYRegionRequestDTO> queue = new LinkedList<>();
-
-
+        List<TYYYRegionDTO> regionDTOs = getReginWithGroupList(tyyyRegionRequestDTO);
+        TYYYRegionDTO root = regionDTOs.get(0);
+        Queue<TYYYRegionDTO> queue = new LinkedList<>();
+        queue.addAll(regionDTOs);
+        while (!queue.isEmpty()) {
+            TYYYRegionDTO poll = queue.poll();
+            if (poll.getHasChildren() == 1) {
+                TYYYRegionRequestDTO regionRequestDTO = new TYYYRegionRequestDTO();
+                regionRequestDTO.setAccessToken(getAccessToken());
+                regionRequestDTO.setEnterpriseUser(SeeLinkConstant.ENTERPRISE_USER);
+                regionRequestDTO.setRegionId(String.valueOf(poll.getId()));
+                List<TYYYRegionDTO> regionList = getReginWithGroupList(regionRequestDTO);
+                poll.setChildren(regionList);
+                queue.addAll(regionList);
+            }
+            if (poll.getHavDevice()==1){
+                List<TyyyGetDeviceDTO> regionAllDevice = getRegionAllDevice(String.valueOf(poll.getId()));
+                poll.setDeviceList(regionAllDevice);
+            }
+        }
+        return root;
     }
 
-    public TyyyGetDeviceListResponseDTO getDeviceList(TyyyGetDeviceListRequestDTO requestDTO){
+    public List<TyyyGetDeviceDTO> getRegionAllDevice(String regionId){
+        List<TyyyGetDeviceDTO> list = new ArrayList<>();
+        TyyyGetDeviceListRequestDTO tyyyGetDeviceListRequestDTO = new TyyyGetDeviceListRequestDTO();
+        int page = 1;
+        int pageSize = 10;
+        tyyyGetDeviceListRequestDTO.setPageNo(page);
+        tyyyGetDeviceListRequestDTO.setPageSize(pageSize);
+        tyyyGetDeviceListRequestDTO.setRegionId(regionId);
+        TyyyGetDeviceListResponseDTO tyyyGetDeviceListResponseDTO = getDeviceList(tyyyGetDeviceListRequestDTO);
+        Integer totalCount = tyyyGetDeviceListResponseDTO.getTotalCount();
+        Integer totalPage = totalCount / pageSize + (totalCount % pageSize == 0 ? 0 : 1);
+        list.addAll(tyyyGetDeviceListResponseDTO.getList());
+        while (page<totalPage){
+            page++;
+            TyyyGetDeviceListRequestDTO requestDTO = new TyyyGetDeviceListRequestDTO();
+            requestDTO.setPageNo(page);
+            requestDTO.setPageSize(pageSize);
+            requestDTO.setRegionId(regionId);
+            TyyyGetDeviceListResponseDTO responseDTO = getDeviceList(requestDTO);
+            list.addAll(responseDTO.getList());
+        }
+        return list;
+    }
+
+    public TyyyGetDeviceListResponseDTO getDeviceList(TyyyGetDeviceListRequestDTO requestDTO) {
         String timestamp = StrUtil.str(System.currentTimeMillis(), StandardCharsets.UTF_8);
         requestDTO.setTimestamp(timestamp);
         requestDTO.setAccessToken(getAccessToken());
@@ -140,6 +175,7 @@ public class SeeLinkApiService {
         }
         return null;
     }
+
 
 }
 

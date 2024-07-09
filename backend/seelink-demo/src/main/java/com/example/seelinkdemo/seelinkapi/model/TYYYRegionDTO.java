@@ -2,6 +2,8 @@ package com.example.seelinkdemo.seelinkapi.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author liurong
  * @version 1.0
@@ -16,6 +18,10 @@ public class TYYYRegionDTO {
     private String regionCode;
     private String regionGBId;
     private int hasChildren;
+
+    List<TYYYRegionDTO> children;
+
+    List<TyyyGetDeviceDTO> deviceList;
 
 }
 

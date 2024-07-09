@@ -35,5 +35,10 @@ public class SeeLinkConstant {
 
     public static final String PLAYBACK_FILE_DOWNLOAD_URI = "/open/token/cloud/getFileUrlById";
 
+    public static final long TOKEN_EXPIRE_SECONDS = 10;
+
+    public static final long REFRESH_TOKEN_EXPIRE_SECONDS = 30*24*3600-3600;
+
+
 }
 

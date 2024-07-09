@@ -2,6 +2,7 @@ package com.example.seelinkdemo.seelinkapi.model;
 
 import cn.hutool.core.util.HexUtil;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.xxtea.XXTEA;
 
 /**
@@ -28,7 +29,10 @@ public class TyyyGetAccessTokenRequestDTO extends TYYYAbstractRequest {
 
     @Override
     protected String generateParams() {
-        String paramStr = "grantType=" + grantType + "&refreshToken" + refreshToken;
+        String paramStr = "grantType=" + grantType;
+        if (StringUtils.isNotEmpty(refreshToken)) {
+            paramStr += "&refreshToken=" + refreshToken;
+        }
         byte[] paramsEncrypt = XXTEA.encrypt(paramStr, getAppSecret());
         String paramsEncryptStr = HexUtil.encodeHexStr(paramsEncrypt);
         return paramsEncryptStr;
